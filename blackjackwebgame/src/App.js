@@ -38,6 +38,8 @@ function App() {
   const [drawRound, setDrawRound] = useState(false)
   const [wonRound, setWonRound] = useState(false)
 
+  const [roundEnded, setRoundEnded] = useState(false)
+
   ////MAIN UPDATE FUNC
   useEffect(() => {
 
@@ -53,7 +55,7 @@ function App() {
 
     //// Set player and dealer cards after DEAL ACTION
     if (resultDeal !== undefined) {
-      
+
 
       setPlayerCards(resultDeal.playerCards)
       setDealerCards(resultDeal.dealerCards)
@@ -71,52 +73,46 @@ function App() {
     if (resultTurn !== undefined) {
       console.log("RES TURN: ", resultTurn)
       setBalance(resultTurn.currentBalance)
+      if (resultTurn.roundEnded === false) {
 
+        if (resultTurn.playerCard !== null || resultTurn.playerCard !== undefined) {
+          console.log("NEW CARD: ", resultTurn.playerCard)
+          let newArr = [];
+          newArr = [...playerCards]
+          newArr.push(resultTurn.playerCard)
+          setPlayerCards(newArr)
 
-      if (resultTurn.playerCard !== null || resultTurn.playerCard !== undefined) {
-        console.log("NEW CARD: ", resultTurn.playerCard)
-        let newArr = [];
-        newArr = [...playerCards]
-        newArr.push(resultTurn.playerCard)
-        setPlayerCards(newArr)
+        }
 
+        if (resultTurn.dealerCard !== null || resultTurn.dealerCard !== undefined) {
+          let newArr = [];
+          newArr = [...dealerCards]
+          newArr.push(resultTurn.dealerCard)
+          setDealerCards(newArr)
+        }
       }
-
-      if (resultTurn.dealerCard !== null || resultTurn.dealerCard !== undefined) {
-        let newArr = [];
-        newArr = [...dealerCards]
-        newArr.push(resultTurn.dealerCard)
-        setDealerCards(newArr)
-      }
-
-      if (resultTurn.roundEnded) {
-        
+      else {
+        setRoundEnded(resultTurn.roundEnded)
 
         if (resultTurn.winAmount < 0) {
           setDrawRound(false)
           setWonRound(false)
           setLostRound(true)
-          let newArr = []
-          setPlayerCards(newArr)
-          setDealerCards(newArr)
+
 
         }
         else if (resultTurn.winAmount === 0) {
           setWonRound(false)
           setLostRound(false)
           setDrawRound(true)
-          let newArr = []
-          setPlayerCards(newArr)
-          setDealerCards(newArr)
+
 
         }
         else {
           setLostRound(false)
           setDrawRound(false)
           setWonRound(true)
-          let newArr = []
-          setPlayerCards(newArr)
-          setDealerCards(newArr)
+
 
         }
       }
@@ -145,13 +141,20 @@ function App() {
   }, [playerCards, dealerCards])
 
 
-  ////check if round ended
-  // useEffect(() => {
-  //   let newArr = []
-  //     setPlayerCards(newArr);
-  //     setDealerCards(newArr)
 
-  // }, [wonRound, drawRound, lostRound])
+
+
+  //check if round ended
+  useEffect(() => {
+    let newArr = []
+    setPlayerCards(newArr);
+    setDealerCards(newArr)
+
+    setWonRound(false);
+    setDrawRound(false);
+    setLostRound(false)
+
+  }, [roundEnded])
 
   const handleSit = () => {
 
@@ -209,7 +212,7 @@ function App() {
     return fetch(`https://cors-anywhere.herokuapp.com/https://blackjack.fuzz.me.uk/deal`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-    
+
         console.log("DEAL", result);
         setResultDeal(result)
         return { type: "SUCCESS", result };
@@ -351,10 +354,10 @@ function App() {
   }
 
   const PlayerCards = () => {
-   
-   
-   return <div className={"player-cards-container"}>
-    
+
+
+    return <div className={"player-cards-container"}>
+
       {playerCards.map((element, index) => {
         if (element !== null && element !== undefined) {
           let imgSrc = '';
@@ -415,11 +418,11 @@ function App() {
       <header className="App-header">
         <h1>Blackjack Gambling Game</h1>
         <div className={"actions-container"}>
-        <button onClick={handleSit}>SIT</button>
-        <button onClick={handleDeal}>DEAL</button>
-        <button onClick={handleHit}>HIT</button>
-        <button onClick={handleStay}>STAY</button>
-        <button onClick={handleStand}>STAND</button>
+          <button onClick={handleSit}>SIT</button>
+          <button onClick={handleDeal}>DEAL</button>
+          <button onClick={handleHit}>HIT</button>
+          <button onClick={handleStay}>STAY</button>
+          <button onClick={handleStand}>STAND</button>
         </div>
         <div className={"balance-container"}><p className={"balance-text"}>BALANCE: {balance} $</p></div>
         <div className={"bet-container"}><p className={"bet-text"}>Your Bet: {bet} $</p></div>
