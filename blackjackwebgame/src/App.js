@@ -72,7 +72,7 @@ function App() {
     //// Set player new Card
     if (resultTurn !== undefined) {
       console.log("RES TURN: ", resultTurn)
-      setBalance(resultTurn.currentBalance)
+
       if (resultTurn.roundEnded === false) {
 
         if (resultTurn.playerCard !== null || resultTurn.playerCard !== undefined) {
@@ -92,6 +92,7 @@ function App() {
         }
       }
       else {
+        setBalance(resultTurn.currentBalance)
         setRoundEnded(resultTurn.roundEnded)
 
         if (resultTurn.winAmount < 0) {
@@ -150,9 +151,7 @@ function App() {
     setPlayerCards(newArr);
     setDealerCards(newArr)
 
-    setWonRound(false);
-    setDrawRound(false);
-    setLostRound(false)
+
 
   }, [roundEnded])
 
@@ -190,6 +189,10 @@ function App() {
   }
 
   const handleDeal = () => {
+    setWonRound(false);
+    setDrawRound(false);
+    setLostRound(false)
+
     let headers = new Headers();
     headers.append('Access-Control-Allow-Origin', '*');
     headers.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
