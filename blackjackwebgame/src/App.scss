@@ -1,5 +1,162 @@
-.card {
-  width: 60px;
-  height: 100px;
-  background-color: red;
+.betTokensContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 500px;
+
+  .betToken {
+    width: 60px;
+    height: 60px;
+    background-color: red;
+    border: 3px solid white;
+    border-radius: 50%;
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    transition: all 0.5s ease-in-out;
+
+    .betText {
+      color: white;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    &:hover {
+      background-color: rgb(138, 15, 15);
+      transform: scale(1.1);
+    }
+
+    &:hover + .betText {
+      font-size: 22px;
+    }
+  }
+
+
+  .betTokenActive {
+    width: 50px;
+    height: 50px;
+    background-color: red;
+    border: 3px solid white;
+    border-radius: 50%;
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+  }
 }
+
+.dealer-cards-container {
+  width: 1000px;
+  height: 400px;
+  background-color: rgb(42, 117, 39);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+
+  .card {
+    background-color: white;
+    width: 120px;
+    height: 200px;
+    border:  2px solid black;
+    border-radius: 10%;
+    padding: 10px;
+    margin: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .card-rank {
+      font-size: 52px;
+      font-weight: 700;
+      color: black;
+      // padding: 10px;
+    }
+
+
+    .card-suite-container {
+      width: 50px;
+      height: 50px;
+      .card-suite-image {
+        width: 50px;
+        height: 50px;
+      }
+    }
+  }
+}
+
+.player-cards-container {
+  // background-color: yellow;
+  width: 1000px;
+  height: 400px;
+  background-color: chocolate;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+
+  .card {
+    background-color: white;
+    width: 120px;
+    height: 200px;
+    border:  2px solid black;
+    border-radius: 10%;
+    padding: 10px;
+    margin: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .card-rank {
+      font-size: 52px;
+      font-weight: 700;
+      color: black;
+      // padding: 10px;
+    }
+
+
+    .card-suite-container {
+      width: 50px;
+      height: 50px;
+      .card-suite-image {
+        width: 50px;
+        height: 50px;
+      }
+    }
+  }
+}
+
+.actions-container {
+  width: 700px;
+  display: flex;
+  justify-content: space-around;
+}
+
+
+.balance-container {
+  .balance-text {
+    color: white;
+    font-size: 32px;
+    font-weight: 700;
+
+  }
+}
+
+
+.bet-container {
+  .bet-text {
+    color: white;
+    font-size: 32px;
+    font-weight: 700;
+
+  }
+}
+
+
+
+
