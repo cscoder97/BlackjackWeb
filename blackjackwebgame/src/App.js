@@ -1,6 +1,9 @@
 import './App.scss';
 import React, { useEffect, useState } from 'react'
-
+import Club from './Assets/club.jpg'
+import Diamond from './Assets/diamond.jpg'
+import Hearth from './Assets/hearth.png'
+import Spades from './Assets/spades.svg'
 
 
 // go to https://dev.to/andypotts/avoiding-cors-errors-on-localhost-in-2020-4mfn
@@ -13,6 +16,7 @@ function App() {
   const [sessionId, setSessionId] = useState("");
   const [availableBets, setAvailableBets] = useState([]);
   const [bet, setBet] = useState(0);
+  const [hasChosenBet, setHasChosenBet] = useState(false)
   const [balance, setBalance] = useState(999);
 
   const [playerCards, setPlayerCards] = useState([]);
@@ -30,34 +34,89 @@ function App() {
   const [resultTurn, setResultTurn] = useState()
   const [resultDeal, setResultDeal] = useState()
 
-  const [card, setCard] = useState({ rank: 'A', suite: 'Diamonds' })
+  const [lostRound, setLostRound] = useState(false)
+  const [drawRound, setDrawRound] = useState(false)
+  const [wonRound, setWonRound] = useState(false)
 
+  const [roundEnded, setRoundEnded] = useState(false)
 
-
+  ////MAIN UPDATE FUNC
   useEffect(() => {
 
+
+    /// set available bets and sesId after SIT ACTION
     if (resultSit !== undefined) {
-
-
-
       setAvailableBets(resultSit.availableBetOptions);
       setSessionId(resultSit.sessionId);
 
       console.log("RESULT SIT", resultSit)
     }
 
-    if (resultDeal !== undefined) {
 
+    //// Set player and dealer cards after DEAL ACTION
+    if (resultDeal !== undefined) {
 
 
       setPlayerCards(resultDeal.playerCards)
       setDealerCards(resultDeal.dealerCards)
 
-      resultDeal.playerCards.forEach(element => {
-        setCard({ rank: element.rank, suite: element.suite })
-      })
+      // resultDeal.playerCards.forEach(element => {
+      //   setCard({ rank: element.rank, suite: element.suite })
+      // })
 
-      console.log("CARDS SETED")
+      console.log("CARDS SETED", playerCards, dealerCards)
+    }
+
+
+
+    //// Set player new Card
+    if (resultTurn !== undefined) {
+      console.log("RES TURN: ", resultTurn)
+
+      if (resultTurn.roundEnded === false) {
+
+        if (resultTurn.playerCard !== null || resultTurn.playerCard !== undefined) {
+          console.log("NEW CARD: ", resultTurn.playerCard)
+          let newArr = [];
+          newArr = [...playerCards]
+          newArr.push(resultTurn.playerCard)
+          setPlayerCards(newArr)
+
+        }
+
+        if (resultTurn.dealerCard !== null || resultTurn.dealerCard !== undefined) {
+          let newArr = [];
+          newArr = [...dealerCards]
+          newArr.push(resultTurn.dealerCard)
+          setDealerCards(newArr)
+        }
+      }
+      else {
+        setBalance(resultTurn.currentBalance)
+        setRoundEnded(resultTurn.roundEnded)
+
+        if (resultTurn.winAmount < 0) {
+          setDrawRound(false)
+          setWonRound(false)
+          setLostRound(true)
+
+
+        }
+        else if (resultTurn.winAmount === 0) {
+          setWonRound(false)
+          setLostRound(false)
+          setDrawRound(true)
+
+
+        }
+        else {
+          setLostRound(false)
+          setDrawRound(false)
+          setWonRound(true)
+
+
+        }
+      }
     }
 
 
@@ -66,81 +125,35 @@ function App() {
   /////Set BET and SessionId
   useEffect(() => {
     console.log("SesId: ", sessionId)
-    console.log("AvBets: ", availableBets)
 
-
-    if (availableBets !== undefined && sessionId !== undefined) {
-      setBet(availableBets[1]);
+    if (sessionId !== undefined) {
       setSessionId(sessionId)
     }
 
-  }, [sessionId, availableBets])
+  }, [sessionId])
 
 
-  const createCard = (element) => {
-    // if (element !== undefined) {
-    //   console.log("Card Created: ", element)
-
-
-
-    //   return <div className={"card"}>
-    //     <div>
-    //       <p>"rank"</p>
-    //       <p>
-    //         {element.rank}
-    //       </p>
-    //     </div>
-
-    //     <div>
-    //       <p>"SUite:</p>
-    //       <p>{element.suite}</p>
-    //     </div>
-    //   </div>
-
-    // }
-  }
   ///// set Player s Cards   set Dealer s Cards
   useEffect(() => {
 
     console.log("Players Cards ", playerCards)
     console.log("DealersCards ", dealerCards)
 
-
-    if (playerCards) {
-      playerCards.forEach(element => {
-        // setCard({rank: element.})
-
-        console.log("rank: ", element.rank)
-        console.log("suite: ", element.suite)
-
-        setCardRank(element.rank);
-        setCardSuite(element.suite);
-
-
-        // createCard();
-
-
-
-      });
-    }
-    dealerCards.forEach(element => {
-      console.log("rank: ", element.rank)
-      console.log("suite: ", element.suite)
-    })
-
-
   }, [playerCards, dealerCards])
 
 
+
+
+
+  //check if round ended
   useEffect(() => {
-    // playerCards.forEach(element => {
-    //     createCard(element);
-    //     console.log("Card created");
-    // });
+    let newArr = []
+    setPlayerCards(newArr);
+    setDealerCards(newArr)
 
 
-  }, [cardRank, cardSuite])
 
+  }, [roundEnded])
 
   const handleSit = () => {
 
@@ -176,6 +189,10 @@ function App() {
   }
 
   const handleDeal = () => {
+    setWonRound(false);
+    setDrawRound(false);
+    setLostRound(false)
+
     let headers = new Headers();
     headers.append('Access-Control-Allow-Origin', '*');
     headers.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
@@ -194,14 +211,13 @@ function App() {
     };
 
 
+
     return fetch(`https://cors-anywhere.herokuapp.com/https://blackjack.fuzz.me.uk/deal`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        // setSessionId(result.sessionId);
-        // JSON.stringify(result);
+
         console.log("DEAL", result);
         setResultDeal(result)
-        // setResultSit(result);
         return { type: "SUCCESS", result };
       })
       .catch((error) => {
@@ -236,7 +252,7 @@ function App() {
         // setSessionId(result.sessionId);
         // JSON.stringify(result);
         console.log("TURN", result);
-        // setResultSit(result);
+        setResultTurn(result);
         return { type: "SUCCESS", result };
       })
       .catch((error) => {
@@ -271,7 +287,7 @@ function App() {
         // setSessionId(result.sessionId);
         // JSON.stringify(result);
         console.log("TURN", result);
-        // setResultSit(result);
+        setResultTurn(result);
         return { type: "SUCCESS", result };
       })
       .catch((error) => {
@@ -317,51 +333,115 @@ function App() {
 
 
 
-  const generateCards = () => {
 
-
-    for (let i = 0; i < 2; i++) {
-      return <div>
-        <p>R: {i.rank}</p>
-        <p>S: {i.suite}</p>
-      </div>
+  const handleChooseBet = (event) => {
+    if (event && event.target && event.target.innerText) {
+      setBet(event.target.innerText)
+      setHasChosenBet(true);
     }
   }
 
+
+  const AvailableBets = () => {
+
+    return <div className={"betTokensContainer"}>
+      {availableBets.map((element, index) => {
+
+        return <div className={"betToken"} onClick={(event) => handleChooseBet(event)}>
+          <p className={"betText"}>{element} </p>
+        </div>
+
+      })}
+
+    </div>
+  }
+
+  const PlayerCards = () => {
+
+
+    return <div className={"player-cards-container"}>
+
+      {playerCards.map((element, index) => {
+        if (element !== null && element !== undefined) {
+          let imgSrc = '';
+          switch (element.suite) {
+            case 'Clubs': imgSrc = Club;
+              break;
+            case 'Diamonds': imgSrc = Diamond;
+              break;
+            case 'Spades': imgSrc = Spades;
+              break;
+            case 'Hearts': imgSrc = Hearth;
+              break;
+            default: imgSrc = Hearth
+
+          }
+          return <div className={"card"}>
+            <p className={"card-rank"}>{element.rank}</p>
+            <div className={"card-suite-container"}>
+              <img className={"card-suite-image"} src={imgSrc} alt={"SUITE"} />
+            </div>
+          </div>
+        }
+      })}
+    </div>
+  }
+
+  const DealerCards = () => {
+    return <div className={"dealer-cards-container"}>
+      {dealerCards.map((element, index) => {
+        if (element !== null && element !== undefined) {
+          let imgSrc = '';
+          switch (element.suite) {
+            case 'Clubs': imgSrc = Club;
+              break;
+            case 'Diamonds': imgSrc = Diamond;
+              break;
+            case 'Spades': imgSrc = Spades;
+              break;
+            case 'Hearts': imgSrc = Hearth;
+              break;
+            default: imgSrc = Hearth
+
+          }
+          return <div className={"card"}>
+            <p className={"card-rank"}>{element.rank}</p>
+            <div className={"card-suite-container"}>
+              <img className={"card-suite-image"} src={imgSrc} alt={"SUITE"} />
+            </div>
+          </div>
+        }
+      })}
+    </div>
+  }
 
 
   return (
     <div className="App">
       <header className="App-header">
         <h1>Blackjack Gambling Game</h1>
-        <button onClick={handleSit}>SIT</button>
-        <button onClick={handleDeal}>DEAL</button>
-        <button onClick={handleHit}>HIT</button>
-        <button onClick={handleStay}>STAY</button>
-        <button onClick={handleStand}>STAND</button>
-
-        <div><p>BALANCE: {balance}</p></div>
-        <div><p>BETS: {availableBets}</p></div>
-        <div><p>Your Bet: {bet}</p></div>
-        <div><p>rank:
-          {
-
-          }
-        </p>
-          <p>suite: {cardSuite}</p>
+        <div className={"actions-container"}>
+          <button onClick={handleSit}>SIT</button>
+          <button onClick={handleDeal}>DEAL</button>
+          <button onClick={handleHit}>HIT</button>
+          <button onClick={handleStay}>STAY</button>
+          <button onClick={handleStand}>STAND</button>
         </div>
-
-          {generateCards()}
-
-
-        {/* <div>
-          <p>R: {element.rank}</p>
-          <p>S: {element.suite}</p>
-        </div> */}
+        <div className={"balance-container"}><p className={"balance-text"}>BALANCE: {balance} $</p></div>
+        <div className={"bet-container"}><p className={"bet-text"}>Your Bet: {bet} $</p></div>
 
 
-        {/* <div><p>Your Cards: {playerCards}</p></div> */}
-        {/* <div><p>Dealer's Cards: {dealerCards}</p></div> */}
+        {wonRound && <div><h1>YOU WON</h1></div>}
+        {drawRound && <div><h1>DRAW</h1></div>}
+        {lostRound && <div><h1>YOU LOST</h1></div>}
+
+
+        {(dealerCards !== null && dealerCards !== undefined) && <DealerCards />}
+
+        <AvailableBets />
+
+
+        {(playerCards !== null && playerCards !== undefined) && <PlayerCards />}
 
 
 
