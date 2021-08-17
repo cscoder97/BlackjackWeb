@@ -376,7 +376,7 @@ function App() {
             default: imgSrc = Hearth
 
           }
-          return <div className={"card"}>
+          return <div className={"card"} key={index}>
             <p className={"card-rank"}>{element.rank}</p>
             <div className={"card-suite-container"}>
               <img className={"card-suite-image"} src={imgSrc} alt={"SUITE"} />
@@ -404,7 +404,7 @@ function App() {
             default: imgSrc = Hearth
 
           }
-          return <div className={"card"}>
+          return <div className={"card"} key={index}>
             <p className={"card-rank"}>{element.rank}</p>
             <div className={"card-suite-container"}>
               <img className={"card-suite-image"} src={imgSrc} alt={"SUITE"} />
