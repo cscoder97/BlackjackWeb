@@ -21,6 +21,8 @@ function App() {
 
   const [playerCards, setPlayerCards] = useState([]);
   const [dealerCards, setDealerCards] = useState([])
+  const [playerScore, setPlayerScore] = useState(0)
+  const [dealerScore, setDealerScore] = useState(0)
 
   const [cardRank, setCardRank] = useState('');
   const [cardSuite, setCardSuite] = useState('');
@@ -40,6 +42,10 @@ function App() {
   const [wonRound, setWonRound] = useState(false)
 
   const [roundEnded, setRoundEnded] = useState(false)
+  const [winAmount, setWinAmount] = useState(0);
+  const [roundsPlayed, setRoundsPlayed] = useState(0)
+
+
 
 
   /////////SIT
@@ -76,30 +82,34 @@ function App() {
     if (resultTurn !== undefined) {
       console.log("RES TURN: ", resultTurn)
 
+      if (resultTurn.playerCard !== null || resultTurn.playerCard !== undefined) {
+        console.log("NEW CARD: ", resultTurn.playerCard)
+        let newArr = [];
+        newArr = [...playerCards]
+        newArr.push(resultTurn.playerCard)
+        setPlayerCards(newArr)
+
+      }
+
+      if (resultTurn.dealerCards !== null || resultTurn.dealerCards !== undefined) {
+        console.log("NEW d CARD: ", resultTurn.dealerCards)
+        // let newArr = [];
+        // newArr = [...dealerCards]
+        // newArr.push(resultTurn.dealerCards)
+        setDealerCards(resultTurn.dealerCards)
+      }
 
       ////game hasn't stopped
       if (resultTurn.roundEnded === false) {
+        setRoundEnded(resultTurn.roundEnded)
 
-        if (resultTurn.playerCard !== null || resultTurn.playerCard !== undefined) {
-          console.log("NEW CARD: ", resultTurn.playerCard)
-          let newArr = [];
-          newArr = [...playerCards]
-          newArr.push(resultTurn.playerCard)
-          setPlayerCards(newArr)
 
-        }
-
-        if (resultTurn.dealerCard !== null || resultTurn.dealerCard !== undefined) {
-          let newArr = [];
-          newArr = [...dealerCards]
-          newArr.push(resultTurn.dealerCard)
-          setDealerCards(newArr)
-        }
       }
       ///game has stopped
       else {
         setBalance(resultTurn.currentBalance)
         setRoundEnded(resultTurn.roundEnded)
+        setWinAmount(resultTurn.winAmount)
 
         if (resultTurn.winAmount < 0) {
           setDrawRound(false)
@@ -130,28 +140,53 @@ function App() {
 
 
   useEffect(() => {
+    if (resultStand !== undefined) {
+      console.log("TURN", resultStand);
 
-    console.log("TURN", resultStand);
-    // set nr of rounds played
-    // set winamount
-
+      setBet(0);
+      setWinAmount(resultStand.winAmount);
+      setRoundsPlayed(resultStand.roundsPlayed)
+      // set nr of rounds played
+      // set winamount
+    }
   }, [resultStand])
 
   /////Set BET and SessionId
-  useEffect(() => {
-    console.log("SesId: ", sessionId)
+  // useEffect(() => {
+  //   console.log("SesId: ", sessionId)
 
-    if (sessionId !== undefined) {
-      setSessionId(sessionId)
-    }
+  //   if (sessionId !== undefined) {
+  //     setSessionId(sessionId)
+  //   }
 
-  }, [sessionId])
+  // }, [sessionId])
 
 
   ///// set Player s Cards   set Dealer s Cards
   useEffect(() => {
 
     console.log("Players Cards ", playerCards)
+
+
+    playerCards.forEach((element, index) => {
+      console.log(typeof element.rank)
+      let tempScore = 0
+      switch (element.rank) {
+        case "J": tempScore += 10;
+          break;
+        case "Q": tempScore += 10;
+          break;
+        case "K": tempScore += 10;
+          break;
+        case "A": if (tempScore <= 10) { tempScore += 11; }
+        else { tempScore += 1; }
+          break;
+        default: tempScore +=  element.rank;
+      }
+
+      setPlayerScore(playerScore + tempScore);
+    })
+    
     console.log("DealersCards ", dealerCards)
 
   }, [playerCards, dealerCards])
@@ -163,16 +198,21 @@ function App() {
   //check if round ended
   useEffect(() => {
 
-    setTimeout(() => {
-      let newArr = []
-      setPlayerCards(newArr);
-      setDealerCards(newArr)
 
-    }, 5000)
+    if (roundEnded) {
+      setTimeout(() => {
+        let newArr = []
+        setPlayerCards(newArr);
+        setDealerCards(newArr);
+        setWonRound(false);
+        setDrawRound(false);
+        setLostRound(false);
 
+      }, 3000)
 
+    }
 
-  }, [roundEnded])
+  }, [roundEnded, winAmount])
 
   const handleSit = () => {
 
@@ -208,9 +248,7 @@ function App() {
   }
 
   const handleDeal = () => {
-    setWonRound(false);
-    setDrawRound(false);
-    setLostRound(false)
+
 
     let headers = new Headers();
     headers.append('Access-Control-Allow-Origin', '*');
@@ -361,7 +399,7 @@ function App() {
     return <div className={"betTokensContainer"}>
       {availableBets.map((element, index) => {
 
-        return <div className={"betToken"} onClick={(event) => handleChooseBet(event)}>
+        return <div key={index} className={"betToken"} onClick={(event) => handleChooseBet(event)}>
           <p className={"betText"}>{element} </p>
         </div>
 
@@ -443,6 +481,9 @@ function App() {
         </div>
         <div className={"balance-container"}><p className={"balance-text"}>BALANCE: {balance} $</p></div>
         <div className={"bet-container"}><p className={"bet-text"}>Your Bet: {bet} $</p></div>
+        <div className={"bet-container"}><p className={"bet-text"}>rounds: {roundsPlayed} </p></div>
+        <div className={"bet-container"}><p className={"bet-text"}>winAm: {winAmount} </p></div>
+        <div className={"bet-container"}><p className={"bet-text"}>P Score: {playerScore} </p></div>
 
 
         {wonRound && <div><h1>YOU WON</h1></div>}
