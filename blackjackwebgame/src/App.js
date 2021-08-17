@@ -31,8 +31,9 @@ function App() {
 
 
   const [resultSit, setResultSit] = useState()
-  const [resultTurn, setResultTurn] = useState()
   const [resultDeal, setResultDeal] = useState()
+  const [resultTurn, setResultTurn] = useState()
+  const [resultStand, setResultStand] = useState()
 
   const [lostRound, setLostRound] = useState(false)
   const [drawRound, setDrawRound] = useState(false)
@@ -40,10 +41,9 @@ function App() {
 
   const [roundEnded, setRoundEnded] = useState(false)
 
-  ////MAIN UPDATE FUNC
+
+  /////////SIT
   useEffect(() => {
-
-
     /// set available bets and sesId after SIT ACTION
     if (resultSit !== undefined) {
       setAvailableBets(resultSit.availableBetOptions);
@@ -52,27 +52,32 @@ function App() {
       console.log("RESULT SIT", resultSit)
     }
 
+  }, [resultSit])
 
+
+  /////////DEAL
+  useEffect(() => {
     //// Set player and dealer cards after DEAL ACTION
     if (resultDeal !== undefined) {
-
 
       setPlayerCards(resultDeal.playerCards)
       setDealerCards(resultDeal.dealerCards)
 
-      // resultDeal.playerCards.forEach(element => {
-      //   setCard({ rank: element.rank, suite: element.suite })
-      // })
-
       console.log("CARDS SETED", playerCards, dealerCards)
     }
+  }, [resultDeal])
 
 
 
+
+  /////////TURN
+  useEffect(() => {
     //// Set player new Card
     if (resultTurn !== undefined) {
       console.log("RES TURN: ", resultTurn)
 
+
+      ////game hasn't stopped
       if (resultTurn.roundEnded === false) {
 
         if (resultTurn.playerCard !== null || resultTurn.playerCard !== undefined) {
@@ -91,6 +96,7 @@ function App() {
           setDealerCards(newArr)
         }
       }
+      ///game has stopped
       else {
         setBalance(resultTurn.currentBalance)
         setRoundEnded(resultTurn.roundEnded)
@@ -120,7 +126,16 @@ function App() {
     }
 
 
-  }, [resultSit, resultDeal, resultTurn])
+  }, [resultTurn])
+
+
+  useEffect(() => {
+
+    console.log("TURN", resultStand);
+    // set nr of rounds played
+    // set winamount
+
+  }, [resultStand])
 
   /////Set BET and SessionId
   useEffect(() => {
@@ -147,9 +162,13 @@ function App() {
 
   //check if round ended
   useEffect(() => {
-    let newArr = []
-    setPlayerCards(newArr);
-    setDealerCards(newArr)
+
+    setTimeout(() => {
+      let newArr = []
+      setPlayerCards(newArr);
+      setDealerCards(newArr)
+
+    }, 5000)
 
 
 
@@ -249,8 +268,6 @@ function App() {
     return fetch(`https://cors-anywhere.herokuapp.com/https://blackjack.fuzz.me.uk/turn`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        // setSessionId(result.sessionId);
-        // JSON.stringify(result);
         console.log("TURN", result);
         setResultTurn(result);
         return { type: "SUCCESS", result };
@@ -284,9 +301,6 @@ function App() {
     return fetch(`https://cors-anywhere.herokuapp.com/https://blackjack.fuzz.me.uk/turn`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        // setSessionId(result.sessionId);
-        // JSON.stringify(result);
-        console.log("TURN", result);
         setResultTurn(result);
         return { type: "SUCCESS", result };
       })
@@ -322,7 +336,7 @@ function App() {
         // setSessionId(result.sessionId);
         // JSON.stringify(result);
         console.log("STAND", result);
-        // setResultSit(result);
+        setResultStand(result)
         return { type: "SUCCESS", result };
       })
       .catch((error) => {
