@@ -21,6 +21,8 @@ function App() {
 
   const [playerCards, setPlayerCards] = useState([]);
   const [dealerCards, setDealerCards] = useState([])
+  const [playerScore, setPlayerScore] = useState(0)
+  const [dealerScore, setDealerScore] = useState(0)
 
   const [cardRank, setCardRank] = useState('');
   const [cardSuite, setCardSuite] = useState('');
@@ -31,19 +33,23 @@ function App() {
 
 
   const [resultSit, setResultSit] = useState()
-  const [resultTurn, setResultTurn] = useState()
   const [resultDeal, setResultDeal] = useState()
+  const [resultTurn, setResultTurn] = useState()
+  const [resultStand, setResultStand] = useState()
 
   const [lostRound, setLostRound] = useState(false)
   const [drawRound, setDrawRound] = useState(false)
   const [wonRound, setWonRound] = useState(false)
 
   const [roundEnded, setRoundEnded] = useState(false)
+  const [winAmount, setWinAmount] = useState(0);
+  const [roundsPlayed, setRoundsPlayed] = useState(0)
 
-  ////MAIN UPDATE FUNC
+
+
+
+  /////////SIT
   useEffect(() => {
-
-
     /// set available bets and sesId after SIT ACTION
     if (resultSit !== undefined) {
       setAvailableBets(resultSit.availableBetOptions);
@@ -52,48 +58,58 @@ function App() {
       console.log("RESULT SIT", resultSit)
     }
 
+  }, [resultSit])
 
+
+  /////////DEAL
+  useEffect(() => {
     //// Set player and dealer cards after DEAL ACTION
     if (resultDeal !== undefined) {
-
 
       setPlayerCards(resultDeal.playerCards)
       setDealerCards(resultDeal.dealerCards)
 
-      // resultDeal.playerCards.forEach(element => {
-      //   setCard({ rank: element.rank, suite: element.suite })
-      // })
-
       console.log("CARDS SETED", playerCards, dealerCards)
     }
+  }, [resultDeal])
 
 
 
+
+  /////////TURN
+  useEffect(() => {
     //// Set player new Card
     if (resultTurn !== undefined) {
       console.log("RES TURN: ", resultTurn)
 
-      if (resultTurn.roundEnded === false) {
+      if (resultTurn.playerCard !== null || resultTurn.playerCard !== undefined) {
+        console.log("NEW CARD: ", resultTurn.playerCard)
+        let newArr = [];
+        newArr = [...playerCards]
+        newArr.push(resultTurn.playerCard)
+        setPlayerCards(newArr)
 
-        if (resultTurn.playerCard !== null || resultTurn.playerCard !== undefined) {
-          console.log("NEW CARD: ", resultTurn.playerCard)
-          let newArr = [];
-          newArr = [...playerCards]
-          newArr.push(resultTurn.playerCard)
-          setPlayerCards(newArr)
-
-        }
-
-        if (resultTurn.dealerCard !== null || resultTurn.dealerCard !== undefined) {
-          let newArr = [];
-          newArr = [...dealerCards]
-          newArr.push(resultTurn.dealerCard)
-          setDealerCards(newArr)
-        }
       }
+
+      if (resultTurn.dealerCards !== null || resultTurn.dealerCards !== undefined) {
+        console.log("NEW d CARD: ", resultTurn.dealerCards)
+        // let newArr = [];
+        // newArr = [...dealerCards]
+        // newArr.push(resultTurn.dealerCards)
+        setDealerCards(resultTurn.dealerCards)
+      }
+
+      ////game hasn't stopped
+      if (resultTurn.roundEnded === false) {
+        setRoundEnded(resultTurn.roundEnded)
+
+
+      }
+      ///game has stopped
       else {
         setBalance(resultTurn.currentBalance)
         setRoundEnded(resultTurn.roundEnded)
+        setWinAmount(resultTurn.winAmount)
 
         if (resultTurn.winAmount < 0) {
           setDrawRound(false)
@@ -120,23 +136,57 @@ function App() {
     }
 
 
-  }, [resultSit, resultDeal, resultTurn])
+  }, [resultTurn])
+
+
+  useEffect(() => {
+    if (resultStand !== undefined) {
+      console.log("TURN", resultStand);
+
+      setBet(0);
+      setWinAmount(resultStand.winAmount);
+      setRoundsPlayed(resultStand.roundsPlayed)
+      // set nr of rounds played
+      // set winamount
+    }
+  }, [resultStand])
 
   /////Set BET and SessionId
-  useEffect(() => {
-    console.log("SesId: ", sessionId)
+  // useEffect(() => {
+  //   console.log("SesId: ", sessionId)
 
-    if (sessionId !== undefined) {
-      setSessionId(sessionId)
-    }
+  //   if (sessionId !== undefined) {
+  //     setSessionId(sessionId)
+  //   }
 
-  }, [sessionId])
+  // }, [sessionId])
 
 
   ///// set Player s Cards   set Dealer s Cards
   useEffect(() => {
 
     console.log("Players Cards ", playerCards)
+
+
+    playerCards.forEach((element, index) => {
+      console.log(typeof element.rank)
+      let tempScore = 0
+      switch (element.rank) {
+        case "J": tempScore += 10;
+          break;
+        case "Q": tempScore += 10;
+          break;
+        case "K": tempScore += 10;
+          break;
+        case "A": if (tempScore <= 10) { tempScore += 11; }
+        else { tempScore += 1; }
+          break;
+        default: tempScore +=  element.rank;
+      }
+
+      setPlayerScore(playerScore + tempScore);
+    })
+    
     console.log("DealersCards ", dealerCards)
 
   }, [playerCards, dealerCards])
@@ -147,13 +197,22 @@ function App() {
 
   //check if round ended
   useEffect(() => {
-    let newArr = []
-    setPlayerCards(newArr);
-    setDealerCards(newArr)
 
 
+    if (roundEnded) {
+      setTimeout(() => {
+        let newArr = []
+        setPlayerCards(newArr);
+        setDealerCards(newArr);
+        setWonRound(false);
+        setDrawRound(false);
+        setLostRound(false);
 
-  }, [roundEnded])
+      }, 3000)
+
+    }
+
+  }, [roundEnded, winAmount])
 
   const handleSit = () => {
 
@@ -189,9 +248,7 @@ function App() {
   }
 
   const handleDeal = () => {
-    setWonRound(false);
-    setDrawRound(false);
-    setLostRound(false)
+
 
     let headers = new Headers();
     headers.append('Access-Control-Allow-Origin', '*');
@@ -249,8 +306,6 @@ function App() {
     return fetch(`https://cors-anywhere.herokuapp.com/https://blackjack.fuzz.me.uk/turn`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        // setSessionId(result.sessionId);
-        // JSON.stringify(result);
         console.log("TURN", result);
         setResultTurn(result);
         return { type: "SUCCESS", result };
@@ -284,9 +339,6 @@ function App() {
     return fetch(`https://cors-anywhere.herokuapp.com/https://blackjack.fuzz.me.uk/turn`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        // setSessionId(result.sessionId);
-        // JSON.stringify(result);
-        console.log("TURN", result);
         setResultTurn(result);
         return { type: "SUCCESS", result };
       })
@@ -322,7 +374,7 @@ function App() {
         // setSessionId(result.sessionId);
         // JSON.stringify(result);
         console.log("STAND", result);
-        // setResultSit(result);
+        setResultStand(result)
         return { type: "SUCCESS", result };
       })
       .catch((error) => {
@@ -347,7 +399,7 @@ function App() {
     return <div className={"betTokensContainer"}>
       {availableBets.map((element, index) => {
 
-        return <div className={"betToken"} onClick={(event) => handleChooseBet(event)}>
+        return <div key={index} className={"betToken"} onClick={(event) => handleChooseBet(event)}>
           <p className={"betText"}>{element} </p>
         </div>
 
@@ -376,7 +428,7 @@ function App() {
             default: imgSrc = Hearth
 
           }
-          return <div className={"card"}>
+          return <div className={"card"} key={index}>
             <p className={"card-rank"}>{element.rank}</p>
             <div className={"card-suite-container"}>
               <img className={"card-suite-image"} src={imgSrc} alt={"SUITE"} />
@@ -404,7 +456,7 @@ function App() {
             default: imgSrc = Hearth
 
           }
-          return <div className={"card"}>
+          return <div className={"card"} key={index}>
             <p className={"card-rank"}>{element.rank}</p>
             <div className={"card-suite-container"}>
               <img className={"card-suite-image"} src={imgSrc} alt={"SUITE"} />
@@ -429,6 +481,9 @@ function App() {
         </div>
         <div className={"balance-container"}><p className={"balance-text"}>BALANCE: {balance} $</p></div>
         <div className={"bet-container"}><p className={"bet-text"}>Your Bet: {bet} $</p></div>
+        <div className={"bet-container"}><p className={"bet-text"}>rounds: {roundsPlayed} </p></div>
+        <div className={"bet-container"}><p className={"bet-text"}>winAm: {winAmount} </p></div>
+        <div className={"bet-container"}><p className={"bet-text"}>P Score: {playerScore} </p></div>
 
 
         {wonRound && <div><h1>YOU WON</h1></div>}
