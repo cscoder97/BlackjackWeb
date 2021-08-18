@@ -91,7 +91,7 @@ function App() {
 
       }
 
-      if (resultTurn.dealerCards !== null || resultTurn.dealerCards !== undefined) {
+      if (resultTurn.roundEnded && (resultTurn.dealerCards !== null || resultTurn.dealerCards !== undefined)) {
         console.log("NEW d CARD: ", resultTurn.dealerCards)
         // let newArr = [];
         // newArr = [...dealerCards]
@@ -151,15 +151,7 @@ function App() {
     }
   }, [resultStand])
 
-  /////Set BET and SessionId
-  // useEffect(() => {
-  //   console.log("SesId: ", sessionId)
 
-  //   if (sessionId !== undefined) {
-  //     setSessionId(sessionId)
-  //   }
-
-  // }, [sessionId])
 
 
   ///// set Player s Cards   set Dealer s Cards
@@ -167,26 +159,30 @@ function App() {
 
     console.log("Players Cards ", playerCards)
 
+    if (playerCards !== null && playerCards !== undefined) {
 
-    playerCards.forEach((element, index) => {
-      console.log(typeof element.rank)
-      let tempScore = 0
-      switch (element.rank) {
-        case "J": tempScore += 10;
-          break;
-        case "Q": tempScore += 10;
-          break;
-        case "K": tempScore += 10;
-          break;
-        case "A": if (tempScore <= 10) { tempScore += 11; }
-        else { tempScore += 1; }
-          break;
-        default: tempScore +=  element.rank;
-      }
+      playerCards.forEach((element, index) => {
 
-      setPlayerScore(playerScore + tempScore);
-    })
-    
+        if (element !== null && element !== undefined) {
+          let tempScore = 0
+          switch (element.rank) {
+            case "J": tempScore += 10;
+              break;
+            case "Q": tempScore += 10;
+              break;
+            case "K": tempScore += 10;
+              break;
+            case "A": if (tempScore <= 21) { tempScore += 11; }
+            else { tempScore += 1; }
+              break;
+            default: tempScore += Number(element.rank);
+          }
+
+          setPlayerScore(tempScore);
+        }
+        
+      })
+    }
     console.log("DealersCards ", dealerCards)
 
   }, [playerCards, dealerCards])
@@ -204,11 +200,13 @@ function App() {
         let newArr = []
         setPlayerCards(newArr);
         setDealerCards(newArr);
+        setPlayerScore(0)
         setWonRound(false);
         setDrawRound(false);
         setLostRound(false);
+        setRoundEnded(false)
 
-      }, 3000)
+      }, 6000)
 
     }
 
@@ -248,7 +246,7 @@ function App() {
   }
 
   const handleDeal = () => {
-
+    if (resultDeal !== null) {
 
     let headers = new Headers();
     headers.append('Access-Control-Allow-Origin', '*');
@@ -280,7 +278,7 @@ function App() {
       .catch((error) => {
         return { type: "ERR", error };
       });
-
+    }
 
   }
 
@@ -415,6 +413,7 @@ function App() {
 
       {playerCards.map((element, index) => {
         if (element !== null && element !== undefined) {
+
           let imgSrc = '';
           switch (element.suite) {
             case 'Clubs': imgSrc = Club;
