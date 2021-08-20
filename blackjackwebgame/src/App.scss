@@ -10,6 +10,12 @@
   right: 0;
   bottom: 0;
   z-index: 0;
+  
+
+  .button-text {
+    font-size: 28px;
+    font-weight: 600;
+  }
 
   .betTokensContainer {
     position: absolute;
@@ -102,7 +108,6 @@
     }
   }
 
-
   .deal-container {
     position: absolute;
     bottom: 5vh;
@@ -124,7 +129,6 @@
   }
 
   .stand-container {
-
     position: absolute;
     bottom: 5vh;
     right: 5vw;
@@ -133,7 +137,6 @@
   .stand-container-inactive {
     display: none;
   }
-
 
   .choose-bet-container {
     position: absolute;
@@ -148,7 +151,6 @@
     }
   }
 
- 
   .card-face-down-inactive {
     display: none;
   }
@@ -157,14 +159,14 @@
     position: absolute;
     top: 10vh;
     right: 10vw;
-    height: 300px
+    height: 300px;
   }
 
   .player-score-container {
     position: absolute;
     bottom: 10vh;
     right: 10vw;
-    height: 300px
+    height: 300px;
   }
 
   .score-text {
@@ -187,14 +189,12 @@
     }
   }
 
-
   .dealer-cards-container {
     position: absolute;
     top: 13vh;
     left: 25vw;
     width: 50vw;
     height: 300px;
-    // background-color: rgb(42, 117, 39);
     display: flex;
     flex-direction: row;
     justify-content: space-around;
@@ -214,10 +214,9 @@
       z-index: 1;
 
       .card-rank {
-        font-size: 52px;
+        font-size: 54px;
         font-weight: 700;
         color: black;
-        // padding: 10px;
       }
 
       .card-suite-container {
@@ -232,13 +231,11 @@
   }
 
   .player-cards-container {
-    // background-color: yellow;
     position: absolute;
     width: 50vw;
     left: 25vw;
     bottom: 13vh;
     height: 300px;
-    // background-color: chocolate;
     display: flex;
     flex-direction: row;
     justify-content: space-around;
@@ -260,7 +257,6 @@
         font-size: 52px;
         font-weight: 700;
         color: black;
-        // padding: 10px;
       }
 
       .card-suite-container {
@@ -315,6 +311,4 @@
       font-weight: 700;
     }
   }
-
-  
 }

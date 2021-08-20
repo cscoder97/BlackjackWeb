@@ -48,6 +48,7 @@ function App() {
   useEffect(() => {
     /// set available bets and sesId after SIT ACTION
     if (resultSit !== undefined) {
+      
       setAvailableBets(resultSit.availableBetOptions);
       setSessionId(resultSit.sessionId);
 
@@ -177,6 +178,7 @@ function App() {
       setRoundsPlayed(resultStand.roundsPlayed)
       setGameHasStarted(false)
       setGameHasStopped(true);
+      setBalance(999)
     
     }
   }, [resultStand])
@@ -273,7 +275,7 @@ function App() {
        
        
 
-      }, 6000)
+      }, 3000)
 
     }
 
@@ -285,13 +287,14 @@ function App() {
     if (balance < 1)
     {
       handleStand();
+      setBalance(999)
     }
   },[balance])
 
   const handleSit = () => {
 
     setGameHasStarted(true);
-
+    
     let headers = new Headers();
     headers.append('Access-Control-Allow-Origin', '*');
     headers.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
@@ -593,6 +596,12 @@ function App() {
               </div>
             </Button>
           </div>
+          {gameHasStopped &&
+            <div>
+              <div className={"rounds-container"}><p className={"rounds-text"}>Rounds played: {roundsPlayed} </p></div>
+              <div className={"win-container"}><p className={"win-text"}>Win amount: {winAmount} </p></div>
+            </div>
+          }
         </div>
         :
 
@@ -608,12 +617,12 @@ function App() {
               topLeftCorner={true}
               bottomLeftCorner={true}
               cutLenght="10"
-              margin="5"
+              margin="6"
               borderColor="red"
               handleOnClick={handleDeal}
             >
               <div >
-                <p>DEAL</p>
+                <p className={"button-text"}>DEAL</p>
               </div>
             </Button>
           </div>
@@ -628,12 +637,12 @@ function App() {
               topLeftCorner={false}
               bottomLeftCorner={false}
               cutLenght="10"
-              margin="15"
+              margin="10"
               borderColor="red"
               handleOnClick={handleHit}
             >
               <div >
-                <p>HIT</p>
+                <p className={"button-text"}>HIT</p>
               </div>
             </Button>
           </div>
@@ -648,12 +657,12 @@ function App() {
               topLeftCorner={true}
               bottomLeftCorner={true}
               cutLenght="10"
-              margin="15"
+              margin="10"
               borderColor="red"
               handleOnClick={handleStay}
             >
               <div >
-                <p>STAY</p>
+                <p className={"button-text"}>STAY</p>
               </div>
             </Button>
           </div>
@@ -667,13 +676,13 @@ function App() {
               topRightCorner={true}
               topLeftCorner={true}
               bottomLeftCorner={true}
-              cutLenght="10"
-              margin="15"
+              cutLenght="5"
+              margin="12"
               borderColor="red"
               handleOnClick={handleStand}
             >
               <div >
-                <p>STAND</p>
+                <p className={"button-text"}>STAND</p>
               </div>
             </Button>
           </div>
@@ -691,12 +700,7 @@ function App() {
 
           {!hasChosenBet && <div className={"choose-bet-container"}><h1 className={"choose-bet-text"}>PLEASE CHOOSE A BET!</h1></div>}
 
-          {roundEnded && gameHasStopped &&
-            <div>
-              <div className={"rounds-container"}><p className={"rounds-text"}>Rounds played: {roundsPlayed} </p></div>
-              <div className={"win-container"}><p className={"win-text"}>Win amount: {winAmount} </p></div>
-            </div>
-          }
+         
 
           {wonRound && <div className={"choose-bet-container"}><h1 className={"choose-bet-text"}>YOU WON !</h1></div>}
           {drawRound && <div className={"choose-bet-container"}><h1 className={"choose-bet-text"}>DRAW !</h1></div>}
