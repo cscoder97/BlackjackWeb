@@ -1,9 +1,11 @@
 import './App.scss';
 import React, { useEffect, useState } from 'react'
-import Club from './Assets/club.jpg'
-import Diamond from './Assets/diamond.jpg'
+import Club from './Assets/club.png'
+import Diamond from './Assets/diamond.png'
 import Hearth from './Assets/hearth.png'
-import Spades from './Assets/spades.svg'
+import Spades from './Assets/spades.png'
+import CardFaceDown from './Assets/cardFaceDown.png'
+import Button from './Components/Button/Button'
 
 
 // go to https://dev.to/andypotts/avoiding-cors-errors-on-localhost-in-2020-4mfn
@@ -12,7 +14,6 @@ import Spades from './Assets/spades.svg'
 
 function App() {
 
-  // const [balance, setBalance] = useState(0);
   const [sessionId, setSessionId] = useState("");
   const [availableBets, setAvailableBets] = useState([]);
   const [bet, setBet] = useState(0);
@@ -24,13 +25,6 @@ function App() {
   const [playerScore, setPlayerScore] = useState(0)
   const [dealerScore, setDealerScore] = useState(0)
 
-  const [cardRank, setCardRank] = useState('');
-  const [cardSuite, setCardSuite] = useState('');
-
-  // useEffect(() => {
-  //   console.log(sessionId)
-  // }, [sessionId])
-
 
   const [resultSit, setResultSit] = useState()
   const [resultDeal, setResultDeal] = useState()
@@ -40,14 +34,15 @@ function App() {
   const [lostRound, setLostRound] = useState(false)
   const [drawRound, setDrawRound] = useState(false)
   const [wonRound, setWonRound] = useState(false)
+  const [isBlackjack, setIsBlackJack] = useState(false)
 
   const [roundEnded, setRoundEnded] = useState(false)
-  const [winAmount, setWinAmount] = useState(0);
+  const [winAmount, setWinAmount] = useState(0)
   const [roundsPlayed, setRoundsPlayed] = useState(0)
 
-
-
-
+  const [gameHasStarted, setGameHasStarted] = useState(false)
+  const [gameHasStopped, setGameHasStopped] = useState(false)
+   
   /////////SIT
   useEffect(() => {
     /// set available bets and sesId after SIT ACTION
@@ -69,6 +64,41 @@ function App() {
       setPlayerCards(resultDeal.playerCards)
       setDealerCards(resultDeal.dealerCards)
 
+
+      ////game hasn't stopped => update roundEnded state
+      if (resultDeal.roundEnded === false) {
+        setRoundEnded(resultDeal.roundEnded)
+
+
+      }
+      ///game has stopped => 
+      else {
+        setBalance(resultDeal.currentBalance)
+        setRoundEnded(resultDeal.roundEnded)
+        setWinAmount(resultDeal.winAmount)
+
+        if (resultDeal.winAmount < 0) {
+          setDrawRound(false)
+          setWonRound(false)
+          setLostRound(true)
+
+
+        }
+        else if (resultDeal.winAmount === 0) {
+          setWonRound(false)
+          setLostRound(false)
+          setDrawRound(true)
+
+
+        }
+        else {
+          setLostRound(false)
+          setDrawRound(false)
+          setWonRound(true)
+
+
+        }
+      }
       console.log("CARDS SETED", playerCards, dealerCards)
     }
   }, [resultDeal])
@@ -93,19 +123,16 @@ function App() {
 
       if (resultTurn.roundEnded && (resultTurn.dealerCards !== null || resultTurn.dealerCards !== undefined)) {
         console.log("NEW d CARD: ", resultTurn.dealerCards)
-        // let newArr = [];
-        // newArr = [...dealerCards]
-        // newArr.push(resultTurn.dealerCards)
         setDealerCards(resultTurn.dealerCards)
       }
 
-      ////game hasn't stopped
+      ////game hasn't stopped => update roundEnded state
       if (resultTurn.roundEnded === false) {
         setRoundEnded(resultTurn.roundEnded)
 
 
       }
-      ///game has stopped
+      ///game has stopped => 
       else {
         setBalance(resultTurn.currentBalance)
         setRoundEnded(resultTurn.roundEnded)
@@ -139,15 +166,17 @@ function App() {
   }, [resultTurn])
 
 
+  // reset current bet && setWinAmount and rounds played
   useEffect(() => {
     if (resultStand !== undefined) {
-      console.log("TURN", resultStand);
+      console.log("STAND", resultStand);
 
       setBet(0);
       setWinAmount(resultStand.winAmount);
       setRoundsPlayed(resultStand.roundsPlayed)
-      // set nr of rounds played
-      // set winamount
+      setGameHasStarted(false)
+      setGameHasStopped(true);
+    
     }
   }, [resultStand])
 
@@ -159,34 +188,69 @@ function App() {
 
     console.log("Players Cards ", playerCards)
 
-    if (playerCards !== null && playerCards !== undefined) {
+    if (playerCards.length > 0 && playerCards !== undefined) {
 
+      let tempScore = 0
       playerCards.forEach((element, index) => {
 
         if (element !== null && element !== undefined) {
-          let tempScore = 0
-          switch (element.rank) {
-            case "J": tempScore += 10;
-              break;
-            case "Q": tempScore += 10;
-              break;
-            case "K": tempScore += 10;
-              break;
-            case "A": if (tempScore <= 21) { tempScore += 11; }
-            else { tempScore += 1; }
-              break;
-            default: tempScore += Number(element.rank);
+
+          if (element.rank === "J" || element.rank === "Q" || element.rank === "K") {
+            tempScore += 10;
+          } else if (element.rank === "A") {
+            if (tempScore <= 21) {
+              tempScore += 11
+            }
+            else {
+              tempScore += 1
+            }
+          }
+          else {
+            tempScore += Number(element.rank)
           }
 
           setPlayerScore(tempScore);
         }
-        
+
       })
     }
+
+
+  }, [playerCards])
+
+
+  useEffect(() => {
+
     console.log("DealersCards ", dealerCards)
 
-  }, [playerCards, dealerCards])
+    if (dealerCards.length > 0 && dealerCards !== undefined) {
+      let tempScore = 0
+      dealerCards.forEach((element, index) => {
 
+        if (element !== null && element !== undefined) {
+
+          if (element.rank === "J" || element.rank === "Q" || element.rank === "K") {
+            tempScore += 10;
+          } else if (element.rank === "A") {
+            if (tempScore <= 21) {
+              tempScore += 11
+            }
+            else {
+              tempScore += 1
+            }
+          }
+          else {
+            tempScore += Number(element.rank)
+          }
+
+          setDealerScore(tempScore);
+        }
+
+      })
+
+    }
+
+  }, [dealerCards])
 
 
 
@@ -194,17 +258,19 @@ function App() {
   //check if round ended
   useEffect(() => {
 
-
+    //when the round ended, reset game state
     if (roundEnded) {
       setTimeout(() => {
-        let newArr = []
-        setPlayerCards(newArr);
-        setDealerCards(newArr);
-        setPlayerScore(0)
+        setPlayerCards([]);
+        setDealerCards([]);
+        setPlayerScore(0);
+        setDealerScore(0);
         setWonRound(false);
         setDrawRound(false);
         setLostRound(false);
-        setRoundEnded(false)
+        setIsBlackJack(false);
+       
+       
 
       }, 6000)
 
@@ -212,7 +278,18 @@ function App() {
 
   }, [roundEnded, winAmount])
 
+
+  useEffect(() => {
+
+    if (balance < 1)
+    {
+      handleStand();
+    }
+  },[balance])
+
   const handleSit = () => {
+
+    setGameHasStarted(true);
 
     let headers = new Headers();
     headers.append('Access-Control-Allow-Origin', '*');
@@ -245,110 +322,126 @@ function App() {
 
   }
 
+
+  // after choosing a bet, deal the cards
   const handleDeal = () => {
-    if (resultDeal !== null) {
-
-    let headers = new Headers();
-    headers.append('Access-Control-Allow-Origin', '*');
-    headers.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
-    headers.append('Access-Control-Allow-Credentials', true);
-    headers.append('Content-Type', 'application/json');
-    headers.append("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
-
-    let requestOptions = {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify({
-        "bet": bet,
-        "sessionId": sessionId
-      }),
-      redirect: "follow",
-    };
+    if (bet === 0) {
+      setHasChosenBet(false);
+    }
 
 
+    if (resultDeal !== null && bet !== 0) {
+      setRoundEnded(false);
+      let headers = new Headers();
+      headers.append('Access-Control-Allow-Origin', '*');
+      headers.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
+      headers.append('Access-Control-Allow-Credentials', true);
+      headers.append('Content-Type', 'application/json');
+      headers.append("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
 
-    return fetch(`https://cors-anywhere.herokuapp.com/https://blackjack.fuzz.me.uk/deal`, requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
+      let requestOptions = {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          "bet": bet,
+          "sessionId": sessionId
+        }),
+        redirect: "follow",
+      };
 
-        console.log("DEAL", result);
-        setResultDeal(result)
-        return { type: "SUCCESS", result };
-      })
-      .catch((error) => {
-        return { type: "ERR", error };
-      });
+
+
+      return fetch(`https://cors-anywhere.herokuapp.com/https://blackjack.fuzz.me.uk/deal`, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+
+          console.log("DEAL", result);
+          setResultDeal(result)
+          return { type: "SUCCESS", result };
+        })
+        .catch((error) => {
+          return { type: "ERR", error };
+        });
     }
 
   }
 
+
+  // stay with the current cards and wait for the result
   const handleStay = () => {
-    let headers = new Headers();
-    headers.append('Access-Control-Allow-Origin', '*');
-    headers.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
-    headers.append('Access-Control-Allow-Credentials', true);
-    headers.append('Content-Type', 'application/json');
-    headers.append("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
 
-    let requestOptions = {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify({
-        "action": "stay",
-        "sessionId": sessionId
-      }),
-      redirect: "follow",
-    };
+    if (playerCards.length > 0) {
+      let headers = new Headers();
+      headers.append('Access-Control-Allow-Origin', '*');
+      headers.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
+      headers.append('Access-Control-Allow-Credentials', true);
+      headers.append('Content-Type', 'application/json');
+      headers.append("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+
+      let requestOptions = {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          "action": "stay",
+          "sessionId": sessionId
+        }),
+        redirect: "follow",
+      };
 
 
-    return fetch(`https://cors-anywhere.herokuapp.com/https://blackjack.fuzz.me.uk/turn`, requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("TURN", result);
-        setResultTurn(result);
-        return { type: "SUCCESS", result };
-      })
-      .catch((error) => {
-        return { type: "ERR", error };
-      });
-
+      return fetch(`https://cors-anywhere.herokuapp.com/https://blackjack.fuzz.me.uk/turn`, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("TURN", result);
+          setResultTurn(result);
+          return { type: "SUCCESS", result };
+        })
+        .catch((error) => {
+          return { type: "ERR", error };
+        });
+    }
 
   }
 
+  // ask for another card
   const handleHit = () => {
-    let headers = new Headers();
-    headers.append('Access-Control-Allow-Origin', '*');
-    headers.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
-    headers.append('Access-Control-Allow-Credentials', true);
-    headers.append('Content-Type', 'application/json');
-    headers.append("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+    if (playerCards.length > 0) {
+      let headers = new Headers();
+      headers.append('Access-Control-Allow-Origin', '*');
+      headers.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
+      headers.append('Access-Control-Allow-Credentials', true);
+      headers.append('Content-Type', 'application/json');
+      headers.append("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
 
-    let requestOptions = {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify({
-        "action": "hit",
-        "sessionId": sessionId
-      }),
-      redirect: "follow",
-    };
-
-
-    return fetch(`https://cors-anywhere.herokuapp.com/https://blackjack.fuzz.me.uk/turn`, requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        setResultTurn(result);
-        return { type: "SUCCESS", result };
-      })
-      .catch((error) => {
-        return { type: "ERR", error };
-      });
+      let requestOptions = {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          "action": "hit",
+          "sessionId": sessionId
+        }),
+        redirect: "follow",
+      };
 
 
+      return fetch(`https://cors-anywhere.herokuapp.com/https://blackjack.fuzz.me.uk/turn`, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          setResultTurn(result);
+          return { type: "SUCCESS", result };
+        })
+        .catch((error) => {
+          return { type: "ERR", error };
+        });
+
+    }
   }
 
 
+  // stand / end game
   const handleStand = () => {
+   
+
     let headers = new Headers();
     headers.append('Access-Control-Allow-Origin', '*');
     headers.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
@@ -379,11 +472,14 @@ function App() {
         return { type: "ERR", error };
       });
 
+    
+
+
   }
 
 
 
-
+  // choose current bet from the available bets 
   const handleChooseBet = (event) => {
     if (event && event.target && event.target.innerText) {
       setBet(event.target.innerText)
@@ -392,8 +488,8 @@ function App() {
   }
 
 
+  // create available bets 
   const AvailableBets = () => {
-
     return <div className={"betTokensContainer"}>
       {availableBets.map((element, index) => {
 
@@ -406,9 +502,9 @@ function App() {
     </div>
   }
 
+
+  // create player cards
   const PlayerCards = () => {
-
-
     return <div className={"player-cards-container"}>
 
       {playerCards.map((element, index) => {
@@ -438,6 +534,7 @@ function App() {
     </div>
   }
 
+  // create dealer cards
   const DealerCards = () => {
     return <div className={"dealer-cards-container"}>
       {dealerCards.map((element, index) => {
@@ -467,39 +564,155 @@ function App() {
   }
 
 
+
   return (
     <div className="App">
       <header className="App-header">
         <h1>Blackjack Gambling Game</h1>
-        <div className={"actions-container"}>
-          <button onClick={handleSit}>SIT</button>
-          <button onClick={handleDeal}>DEAL</button>
-          <button onClick={handleHit}>HIT</button>
-          <button onClick={handleStay}>STAY</button>
-          <button onClick={handleStand}>STAND</button>
-        </div>
-        <div className={"balance-container"}><p className={"balance-text"}>BALANCE: {balance} $</p></div>
-        <div className={"bet-container"}><p className={"bet-text"}>Your Bet: {bet} $</p></div>
-        <div className={"bet-container"}><p className={"bet-text"}>rounds: {roundsPlayed} </p></div>
-        <div className={"bet-container"}><p className={"bet-text"}>winAm: {winAmount} </p></div>
-        <div className={"bet-container"}><p className={"bet-text"}>P Score: {playerScore} </p></div>
-
-
-        {wonRound && <div><h1>YOU WON</h1></div>}
-        {drawRound && <div><h1>DRAW</h1></div>}
-        {lostRound && <div><h1>YOU LOST</h1></div>}
-
-
-        {(dealerCards !== null && dealerCards !== undefined) && <DealerCards />}
-
-        <AvailableBets />
-
-
-        {(playerCards !== null && playerCards !== undefined) && <PlayerCards />}
-
-
-
       </header>
+      {(!gameHasStarted) ?
+        <div>
+         
+          <div className={"sit-container"}>
+            <Button
+              width="400"
+              height="120"
+              backgroundColor="yellow"
+              bottomRightCorner={false}
+              topRightCorner={true}
+              topLeftCorner={false}
+              bottomLeftCorner={true}
+              cutLenght="40"
+              margin="8"
+              borderColor="red"
+              handleOnClick={handleSit}
+            >
+              <div>
+                <p className={"sit-text"}>PLAY</p>
+              </div>
+            </Button>
+          </div>
+        </div>
+        :
+
+        <div>
+          <div className={"deal-container"}>
+            <Button
+
+              width="150"
+              height="70"
+              backgroundColor="yellow"
+              bottomRightCorner={true}
+              topRightCorner={true}
+              topLeftCorner={true}
+              bottomLeftCorner={true}
+              cutLenght="10"
+              margin="5"
+              borderColor="red"
+              handleOnClick={handleDeal}
+            >
+              <div >
+                <p>DEAL</p>
+              </div>
+            </Button>
+          </div>
+          <div className={"hit-container"}>
+            <Button
+
+              width="150"
+              height="70"
+              backgroundColor="yellow"
+              bottomRightCorner={true}
+              topRightCorner={true}
+              topLeftCorner={false}
+              bottomLeftCorner={false}
+              cutLenght="10"
+              margin="15"
+              borderColor="red"
+              handleOnClick={handleHit}
+            >
+              <div >
+                <p>HIT</p>
+              </div>
+            </Button>
+          </div>
+          <div className={"stay-container"}>
+            <Button
+
+              width="150"
+              height="70"
+              backgroundColor="yellow"
+              bottomRightCorner={false}
+              topRightCorner={false}
+              topLeftCorner={true}
+              bottomLeftCorner={true}
+              cutLenght="10"
+              margin="15"
+              borderColor="red"
+              handleOnClick={handleStay}
+            >
+              <div >
+                <p>STAY</p>
+              </div>
+            </Button>
+          </div>
+          <div className={roundEnded ? "stand-container" : "stand-container-inactive"}>
+            <Button
+
+              width="150"
+              height="70"
+              backgroundColor="yellow"
+              bottomRightCorner={true}
+              topRightCorner={true}
+              topLeftCorner={true}
+              bottomLeftCorner={true}
+              cutLenght="10"
+              margin="15"
+              borderColor="red"
+              handleOnClick={handleStand}
+            >
+              <div >
+                <p>STAND</p>
+              </div>
+            </Button>
+          </div>
+
+          <div className={"balance-container"}><p className={"balance-text"}>BALANCE: {balance} $</p></div>
+          {bet !== 0 &&
+            <div className={"bet-container"}><div className={"betToken"} >
+              <p className={"betText"}>{bet} $</p>
+            </div></div>
+          }
+
+          <div className={"player-score-container"}><p className={"score-text"}>Player's Score: {playerScore} </p></div>
+          <div className={"dealer-score-container"}><p className={"score-text"}>Dealer's Score: {dealerScore} </p></div>
+
+
+          {!hasChosenBet && <div className={"choose-bet-container"}><h1 className={"choose-bet-text"}>PLEASE CHOOSE A BET!</h1></div>}
+
+          {roundEnded && gameHasStopped &&
+            <div>
+              <div className={"rounds-container"}><p className={"rounds-text"}>Rounds played: {roundsPlayed} </p></div>
+              <div className={"win-container"}><p className={"win-text"}>Win amount: {winAmount} </p></div>
+            </div>
+          }
+
+          {wonRound && <div className={"choose-bet-container"}><h1 className={"choose-bet-text"}>YOU WON !</h1></div>}
+          {drawRound && <div className={"choose-bet-container"}><h1 className={"choose-bet-text"}>DRAW !</h1></div>}
+          {lostRound && <div className={"choose-bet-container"}><h1 className={"choose-bet-text"}>YOU LOST !</h1></div>}
+          {isBlackjack && <div><h1>BLACKJACK!</h1></div>}
+
+          {(dealerCards.length > 0 && dealerCards !== undefined) && <DealerCards />}
+          {(dealerCards.length > 0) && <div className={roundEnded ? "card-face-down-inactive" : "card-face-down-container"}><img className={"card-face-down-image"} src={CardFaceDown} /></div>}
+
+          <AvailableBets />
+
+
+          {(playerCards.length > 0 && playerCards !== undefined) && <PlayerCards />}
+
+        </div>}
+
+
     </div>
   );
 }

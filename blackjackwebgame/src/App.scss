@@ -1,162 +1,320 @@
-.betTokensContainer {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  width: 500px;
+.App {
+  background-image: url("./Assets/board.jpg");
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
 
-  .betToken {
-    width: 60px;
-    height: 60px;
-    background-color: red;
-    border: 3px solid white;
-    border-radius: 50%;
-    cursor: pointer;
+  .betTokensContainer {
+    position: absolute;
+    left: 5vh;
+    bottom: 5vh;
 
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 500px;
 
-    transition: all 0.5s ease-in-out;
+    .betToken {
+      width: 60px;
+      height: 60px;
+      background-color: red;
+      border: 3px solid white;
+      border-radius: 50%;
+      cursor: pointer;
 
-    .betText {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      transition: all 0.5s ease-in-out;
+
+      .betText {
+        color: white;
+        font-size: 20px;
+        font-weight: 600;
+      }
+
+      &:hover {
+        background-color: rgb(138, 15, 15);
+        transform: scale(1.1);
+      }
+
+      &:hover + .betText {
+        font-size: 22px;
+      }
+    }
+
+    .betTokenActive {
+      width: 50px;
+      height: 50px;
+      background-color: red;
+      border: 3px solid white;
+      border-radius: 50%;
+      cursor: pointer;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+
+  .bet-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    .betToken {
+      width: 70px;
+      height: 70px;
+      background-color: red;
+      border: 3px solid white;
+      border-radius: 50%;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      .betText {
+        color: white;
+        font-size: 20px;
+        font-weight: 700;
+      }
+    }
+  }
+
+  .sit-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    .sit-text {
+      // color: white;
+      font-size: 40px;
+      font-weight: 700;
+    }
+  }
+
+
+  .deal-container {
+    position: absolute;
+    bottom: 5vh;
+    left: 30vw;
+  }
+
+  .hit-container {
+    position: absolute;
+    top: 50%;
+    left: 40%;
+    transform: translate(-50%, -50%);
+  }
+
+  .stay-container {
+    position: absolute;
+    top: 50%;
+    left: 60%;
+    transform: translate(-50%, -50%);
+  }
+
+  .stand-container {
+
+    position: absolute;
+    bottom: 5vh;
+    right: 5vw;
+  }
+
+  .stand-container-inactive {
+    display: none;
+  }
+
+
+  .choose-bet-container {
+    position: absolute;
+    bottom: 5vh;
+    left: 40vw;
+    .choose-bet-text {
+      margin: 0;
+      padding: 0;
       color: white;
-      font-size: 20px;
-      font-weight: 600;
-    }
-
-    &:hover {
-      background-color: rgb(138, 15, 15);
-      transform: scale(1.1);
-    }
-
-    &:hover + .betText {
-      font-size: 22px;
-    }
-  }
-
-
-  .betTokenActive {
-    width: 50px;
-    height: 50px;
-    background-color: red;
-    border: 3px solid white;
-    border-radius: 50%;
-    cursor: pointer;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-  }
-}
-
-.dealer-cards-container {
-  width: 1000px;
-  height: 400px;
-  background-color: rgb(42, 117, 39);
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  align-items: center;
-
-  .card {
-    background-color: white;
-    width: 120px;
-    height: 200px;
-    border:  2px solid black;
-    border-radius: 10%;
-    padding: 10px;
-    margin: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    .card-rank {
-      font-size: 52px;
+      font-size: 40px;
       font-weight: 700;
-      color: black;
-      // padding: 10px;
     }
+  }
+
+ 
+  .card-face-down-inactive {
+    display: none;
+  }
+
+  .dealer-score-container {
+    position: absolute;
+    top: 10vh;
+    right: 10vw;
+    height: 300px
+  }
+
+  .player-score-container {
+    position: absolute;
+    bottom: 10vh;
+    right: 10vw;
+    height: 300px
+  }
+
+  .score-text {
+    color: white;
+    font-size: 30px;
+    font-weight: 700;
+  }
+
+  .card-face-down-container {
+    position: absolute;
+    top: 11vh;
+    left: 47vw;
+    // width: 120px;
+    height: 270px;
+    z-index: 0;
+
+    .card-face-down-image {
+      width: 100%;
+      height: 100%;
+    }
+  }
 
 
-    .card-suite-container {
-      width: 50px;
-      height: 50px;
-      .card-suite-image {
+  .dealer-cards-container {
+    position: absolute;
+    top: 13vh;
+    left: 25vw;
+    width: 50vw;
+    height: 300px;
+    // background-color: rgb(42, 117, 39);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+
+    .card {
+      background-color: white;
+      width: 132px;
+      height: 200px;
+      border: 2px solid #cccccc;
+      border-radius: 7%;
+      padding: 10px;
+      margin: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1;
+
+      .card-rank {
+        font-size: 52px;
+        font-weight: 700;
+        color: black;
+        // padding: 10px;
+      }
+
+      .card-suite-container {
         width: 50px;
         height: 50px;
+        .card-suite-image {
+          width: 50px;
+          height: 50px;
+        }
       }
     }
   }
-}
 
-.player-cards-container {
-  // background-color: yellow;
-  width: 1000px;
-  height: 400px;
-  background-color: chocolate;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  align-items: center;
-
-  .card {
-    background-color: white;
-    width: 120px;
-    height: 200px;
-    border:  2px solid black;
-    border-radius: 10%;
-    padding: 10px;
-    margin: 10px;
+  .player-cards-container {
+    // background-color: yellow;
+    position: absolute;
+    width: 50vw;
+    left: 25vw;
+    bottom: 13vh;
+    height: 300px;
+    // background-color: chocolate;
     display: flex;
-    justify-content: center;
+    flex-direction: row;
+    justify-content: space-around;
     align-items: center;
 
-    .card-rank {
-      font-size: 52px;
-      font-weight: 700;
-      color: black;
-      // padding: 10px;
-    }
+    .card {
+      background-color: white;
+      width: 132px;
+      height: 200px;
+      border: 2px solid #cccccc;
+      border-radius: 7%;
+      padding: 10px;
+      margin: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
 
+      .card-rank {
+        font-size: 52px;
+        font-weight: 700;
+        color: black;
+        // padding: 10px;
+      }
 
-    .card-suite-container {
-      width: 50px;
-      height: 50px;
-      .card-suite-image {
+      .card-suite-container {
         width: 50px;
         height: 50px;
+        .card-suite-image {
+          width: 50px;
+          height: 50px;
+        }
       }
     }
   }
-}
 
-.actions-container {
-  width: 700px;
-  display: flex;
-  justify-content: space-around;
-}
-
-
-.balance-container {
-  .balance-text {
-    color: white;
-    font-size: 32px;
-    font-weight: 700;
-
+  .actions-container {
+    width: 700px;
+    display: flex;
+    justify-content: space-around;
   }
-}
 
+  .balance-container {
+    position: absolute;
+    left: 5vh;
+    bottom: 13vh;
 
-.bet-container {
-  .bet-text {
-    color: white;
-    font-size: 32px;
-    font-weight: 700;
-
+    .balance-text {
+      color: white;
+      font-size: 32px;
+      font-weight: 700;
+    }
   }
+
+  .rounds-container {
+    position: absolute;
+    left: 5vh;
+    bottom: 18vh;
+
+    .rounds-text {
+      color: white;
+      font-size: 32px;
+      font-weight: 700;
+    }
+  }
+
+  .win-container {
+    position: absolute;
+    left: 5vh;
+    bottom: 22vh;
+
+    .win-text {
+      color: white;
+      font-size: 32px;
+      font-weight: 700;
+    }
+  }
+
+  
 }
-
-
-
-
