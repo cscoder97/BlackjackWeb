@@ -8,9 +8,10 @@ import CardFaceDown from './Assets/cardFaceDown.png'
 import Button from './Components/Button/Button'
 
 
-// go to https://dev.to/andypotts/avoiding-cors-errors-on-localhost-in-2020-4mfn
-// -- da find dupa  3. Use a proxy to avoid CORS errors
-// basically poti sa folosesti asta: https://cors-anywhere.herokuapp.com/https://blackjack.fuzz.me.uk/sit
+// go to https://cors-anywhere.herokuapp.com/corsdemo   
+// request temporary acces
+// install cors-everywhere on mozilla and enable it on localhost
+
 
 function App() {
 
