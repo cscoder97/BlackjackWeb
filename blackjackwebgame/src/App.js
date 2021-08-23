@@ -35,7 +35,7 @@ function App() {
   const [lostRound, setLostRound] = useState(false)
   const [drawRound, setDrawRound] = useState(false)
   const [wonRound, setWonRound] = useState(false)
-  const [isBlackjack, setIsBlackJack] = useState(false)
+
 
   const [roundEnded, setRoundEnded] = useState(false)
   const [winAmount, setWinAmount] = useState(0)
@@ -48,11 +48,8 @@ function App() {
   useEffect(() => {
     /// set available bets and sesId after SIT ACTION
     if (resultSit !== undefined) {
-      
       setAvailableBets(resultSit.availableBetOptions);
       setSessionId(resultSit.sessionId);
-
-      console.log("RESULT SIT", resultSit)
     }
 
   }, [resultSit])
@@ -112,10 +109,8 @@ function App() {
   useEffect(() => {
     //// Set player new Card
     if (resultTurn !== undefined) {
-      console.log("RES TURN: ", resultTurn)
 
       if (resultTurn.playerCard !== null || resultTurn.playerCard !== undefined) {
-        console.log("NEW CARD: ", resultTurn.playerCard)
         let newArr = [];
         newArr = [...playerCards]
         newArr.push(resultTurn.playerCard)
@@ -124,7 +119,6 @@ function App() {
       }
 
       if (resultTurn.roundEnded && (resultTurn.dealerCards !== null || resultTurn.dealerCards !== undefined)) {
-        console.log("NEW d CARD: ", resultTurn.dealerCards)
         setDealerCards(resultTurn.dealerCards)
       }
 
@@ -171,8 +165,6 @@ function App() {
   // reset current bet && setWinAmount and rounds played
   useEffect(() => {
     if (resultStand !== undefined) {
-      console.log("STAND", resultStand);
-
       setBet(0);
       setWinAmount(resultStand.winAmount);
       setRoundsPlayed(resultStand.roundsPlayed)
@@ -189,11 +181,11 @@ function App() {
   ///// set Player s Cards   set Dealer s Cards
   useEffect(() => {
 
-    console.log("Players Cards ", playerCards)
-
     if (playerCards.length > 0 && playerCards !== undefined) {
 
       let tempScore = 0
+      let nrOfAces = 0
+
       playerCards.forEach((element, index) => {
 
         if (element !== null && element !== undefined) {
@@ -201,21 +193,30 @@ function App() {
           if (element.rank === "J" || element.rank === "Q" || element.rank === "K") {
             tempScore += 10;
           } else if (element.rank === "A") {
-            if (tempScore <= 21) {
-              tempScore += 11
-            }
-            else {
-              tempScore += 1
-            }
+            nrOfAces ++;
           }
           else {
             tempScore += Number(element.rank)
           }
-
-          setPlayerScore(tempScore);
+          
         }
 
       })
+
+      while (nrOfAces !== 0)
+      {
+        nrOfAces--;
+        if ((tempScore + 11 + nrOfAces )<= 21) {
+          tempScore += 11
+        }
+        else {
+          tempScore += 1
+        }
+      }
+
+      setPlayerScore(tempScore);
+
+
     }
 
 
@@ -224,10 +225,10 @@ function App() {
 
   useEffect(() => {
 
-    console.log("DealersCards ", dealerCards)
 
     if (dealerCards.length > 0 && dealerCards !== undefined) {
       let tempScore = 0
+      let nrOfAces = 0
       dealerCards.forEach((element, index) => {
 
         if (element !== null && element !== undefined) {
@@ -235,21 +236,29 @@ function App() {
           if (element.rank === "J" || element.rank === "Q" || element.rank === "K") {
             tempScore += 10;
           } else if (element.rank === "A") {
-            if (tempScore <= 21) {
-              tempScore += 11
-            }
-            else {
-              tempScore += 1
-            }
+            nrOfAces ++;
           }
           else {
             tempScore += Number(element.rank)
           }
 
-          setDealerScore(tempScore);
+          
         }
 
       })
+
+      while (nrOfAces !== 0)
+      {
+        nrOfAces--;
+        if ((tempScore + 11 + nrOfAces )<= 21) {
+          tempScore += 11
+        }
+        else {
+          tempScore += 1
+        }
+      }
+
+      setDealerScore(tempScore);
 
     }
 
@@ -271,7 +280,6 @@ function App() {
         setWonRound(false);
         setDrawRound(false);
         setLostRound(false);
-        setIsBlackJack(false);
        
        
 
@@ -466,9 +474,6 @@ function App() {
     return fetch(`https://cors-anywhere.herokuapp.com/https://blackjack.fuzz.me.uk/stand`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        // setSessionId(result.sessionId);
-        // JSON.stringify(result);
-        console.log("STAND", result);
         setResultStand(result)
         return { type: "SUCCESS", result };
       })
@@ -705,7 +710,6 @@ function App() {
           {wonRound && <div className={"choose-bet-container"}><h1 className={"choose-bet-text"}>YOU WON !</h1></div>}
           {drawRound && <div className={"choose-bet-container"}><h1 className={"choose-bet-text"}>DRAW !</h1></div>}
           {lostRound && <div className={"choose-bet-container"}><h1 className={"choose-bet-text"}>YOU LOST !</h1></div>}
-          {isBlackjack && <div><h1>BLACKJACK!</h1></div>}
 
           {(dealerCards.length > 0 && dealerCards !== undefined) && <DealerCards />}
           {(dealerCards.length > 0) && <div className={roundEnded ? "card-face-down-inactive" : "card-face-down-container"}><img className={"card-face-down-image"} src={CardFaceDown} /></div>}
