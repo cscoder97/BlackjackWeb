@@ -28,7 +28,7 @@ function App() {
 
 
   const [resultSit, setResultSit] = useState()
-  const [resultDeal, setResultDeal] = useState()
+  const [resultDeal, setResultDeal] = useState(undefined)
   const [resultTurn, setResultTurn] = useState()
   const [resultStand, setResultStand] = useState()
 
@@ -76,6 +76,7 @@ function App() {
         setRoundEnded(resultDeal.roundEnded)
         setWinAmount(resultDeal.winAmount)
 
+        //you lose
         if (resultDeal.winAmount < 0) {
           setDrawRound(false)
           setWonRound(false)
@@ -83,6 +84,7 @@ function App() {
 
 
         }
+        //it's a draw
         else if (resultDeal.winAmount === 0) {
           setWonRound(false)
           setLostRound(false)
@@ -90,6 +92,7 @@ function App() {
 
 
         }
+        //you win
         else {
           setLostRound(false)
           setDrawRound(false)
@@ -342,7 +345,7 @@ function App() {
     }
 
 
-    if (resultDeal !== null && bet !== 0) {
+    if (resultDeal !== null && dealerCards.length === 0 && bet !== 0) {
       setRoundEnded(false);
       let headers = new Headers();
       headers.append('Access-Control-Allow-Origin', '*');
@@ -604,7 +607,7 @@ function App() {
           {gameHasStopped &&
             <div>
               <div className={"rounds-container"}><p className={"rounds-text"}>Rounds played: {roundsPlayed} </p></div>
-              <div className={"win-container"}><p className={"win-text"}>Win amount: {winAmount} </p></div>
+              <div className={"win-container"}><p className={"win-text"}>Win amount: {winAmount} $</p></div>
             </div>
           }
         </div>
@@ -617,10 +620,10 @@ function App() {
               width="150"
               height="70"
               backgroundColor="yellow"
-              bottomRightCorner={true}
-              topRightCorner={true}
-              topLeftCorner={true}
-              bottomLeftCorner={true}
+              bottomRightCorner={false}
+              topRightCorner={false}
+              topLeftCorner={false}
+              bottomLeftCorner={false}
               cutLenght="10"
               margin="6"
               borderColor="red"

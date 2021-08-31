@@ -140,11 +140,12 @@
 
   .choose-bet-container {
     position: absolute;
-    bottom: 5vh;
+    bottom: 5.2vh;
     left: 40vw;
+    background-color: rgba(187, 16, 16, 0.979);
     .choose-bet-text {
       margin: 0;
-      padding: 0;
+      padding: 20px;
       color: white;
       font-size: 40px;
       font-weight: 700;
